@@ -1,0 +1,255 @@
+<div class="container">
+  <h1 class="h1">Student's Form</h1>
+  <span id="span1">{{teacherId}}</span>
+  <form class="student-form" action="{{action}}" method="{{method}}" _method="{{method}}">
+    <label for="Fname">First Name:</label>
+    <input type="text" name="firstName" id="Fname" placeholder="first name" value="{{student.firstName}}"
+      required /><br />
+    <label for="Lname">Last Name:</label>
+    <input type="text" name="lastName" id="Lname" placeholder="Last name" value="{{student.lastName}}" required /><br />
+    <label for="student-age">Age:</label>
+    <input type="text" name="age" id="student-age" placeholder="age in year's" value="{{student.age}}" required /><br />
+    <label for="student-gender">Gender:</label>
+
+    <input type="radio" name="gender" id="gender-male" {{#if (ifEquality student.gender "Male")}}checked{{/if}}
+      value="Male" required />
+    <lable for="gender-female">Male</lable>
+
+    <input type="radio" name="gender" id="gender-female" {{#if (ifEquality student.gender "Female")}}checked{{/if}}
+      value="Female" required />
+    <lable for="gender-female">Female</lable><br />
+
+    <label for="math">Math:</label>
+    <input type="text" name="math" id="math" placeholder="Math marks" value="{{student.math}}" required /><br />
+
+    <label for="english">English:</label>
+    <input type="text" name="english" id="english" placeholder="English Mark" value="{{student.english}}"
+      required /><br />
+
+    <label for="science">Science:</label>
+    <input type="text" name="science" id="science" placeholder="science Mark" value="{{student.science}}"
+      required /><br />
+
+    <label for="tamil">Tamil:</label>
+    <input type="text" name="tamil" id="tamil" placeholder="Tamil Mark" value="{{student.tamil}}" required /><br />
+
+
+
+    <label for="cars">Choose a TeacherId:</label>
+    <select name="teacherId" id="teacherId">
+      {{#each data}}
+      {{!-- {{#if teacherId}} --}}
+
+      {{!-- <option value="id" selected="selected">{{this.id}}</option> --}}
+      {{!-- {{else}} --}}
+
+      <option id="option1" name="teacherId" value="{{this.id}}"
+        {{#if (ifEquality ../teacherId this.id)}}selected{{/if}}>{{this.id}}
+      </option>
+      {{!-- {{/if}} --}}
+
+      {{/each}}
+
+    </select>
+    <br>
+
+
+    {{!-- <div class="dropdown">
+      <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+        aria-haspopup="true" aria-expanded="false">
+        Select TeacherID
+      </button>
+
+      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+        {{#each data}}
+        <a class="dropdown-item" href="#">{{this.id}}</a>
+        {{/each}}
+      </div>
+    </div> --}}
+    <input class="btn btn-primary" type="submit" value="Add Student" />
+  </form>
+</div>
+
+<script>
+  var bool = false;
+  var form = document.querySelector(".container .student-form");
+  let tId = document.querySelector(".container #span1").innerHTML;
+  let temp = document.querySelectorAll(".container .student-form #teacherId  #option1");
+  let compare;
+  temp.forEach((ele) => {
+    if (ele.getAttribute("selected") != null) {
+      compare = ele.getAttribute("value")
+      console.log(compare);
+    }
+  })
+
+  //console.log(tId);
+  //console.log(temp);
+  form.addEventListener("submit", event => {
+
+    event.preventDefault();
+
+    let compareWith = document.querySelector(".container .student-form #teacherId ").value;
+    console.log(compareWith);
+    console.log(compare);
+    if (compareWith == compare) {
+
+      const submitUrl = form.action;
+
+      const submitMethod = form.getAttribute("_method");
+      const formData = new FormData(form);
+      var studentDetails = {};
+      for (const fields of formData.entries()) {
+        const [key, value] = fields;
+        studentDetails[key] = value;
+      }
+      console.log(studentDetails);
+      console.log(submitUrl);
+      var arr = submitUrl.split("/");
+      var teacherID = parseInt(arr[4]);
+      console.log(arr);
+      console.log(teacherID);
+      fetch(submitUrl, {
+        method: submitMethod.toUpperCase(),
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(studentDetails)
+      })
+        .then(response => {
+          console.log(response.status);
+          if (response.status === 200) {
+            return response.json()
+          }
+          else {
+            throw (new error(response.status))
+          }
+        })
+        .then(data => {
+          alert(data.message);
+          window.location.href = "/teacher-students/" + teacherID
+        })
+        .catch(error => {
+          if (error.meaasage == "400")
+            alert("please check the form details..")
+          else if (error.message == "500")
+            alert("please try after some time!!")
+          else
+            alert(error.meaasage)
+        });
+
+
+
+    }
+
+
+    else {
+
+      (function execute() {
+        const submitUrl = "/delete/" + compare;
+        let submitUrl1 = form.action;
+        const submitMethod = "PUT";
+        const formData = new FormData(form);
+        var studentDetails = {};
+        for (const fields of formData.entries()) {
+          const [key, value] = fields;
+          studentDetails[key] = value;
+        }
+
+        var arr = submitUrl1.split("/");
+        var teacherID = parseInt(arr[4]);
+        fetch(submitUrl, {
+          method: submitMethod.toUpperCase(),
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(studentDetails)
+        })
+          .then(response => {
+            bool = true;
+            console.log(bool);
+            console.log(response.status);
+            if (response.status === 200) {
+              return response.json()
+            }
+            else {
+              throw (new error(response.status))
+            }
+          })
+          .then(data => {
+            alert(data.message);
+            window.location.href = "/teacher-students/" + teacherID
+          })
+          .catch(error => {
+            if (error.meaasage == "400")
+              alert("please check the form details..")
+            else if (error.message == "500")
+              alert("please try after some time!!")
+            else
+              alert(error.meaasage)
+          });
+      })();
+
+      // if (bool === true) {
+
+      //function execute1() {
+      //console.log("hi");
+      //const submitUrl = "/teachers/student";
+
+      //const submitMethod = "POST";
+
+      //const formData = new FormData(form);
+      //var studentDetails = {};
+      //for (const fields of formData.entries()) {
+      //const [key, value] = fields;
+      //studentDetails[key] = value;
+      //}
+      //console.log("hhhhhhhhhhhhhhhhhhhh");
+      //console.log(studentDetails);
+
+
+      //fetch(submitUrl, {
+      //method: submitMethod,
+      //headers: {
+      //"Content-Type": "application/json"
+      //},
+      // body: JSON.stringify(studentDetails)
+      //})
+      //.then(response => {
+      //console.log(response.status);
+      //if (response.status === 200) {
+      //return response.json()
+      //}
+      //else {
+      // throw (new error(response.status))
+      //}
+      //})
+      //.then(data => {
+      //alert(data.message);
+      //window.location.href = "/teacher-students/" + teacherID
+      //})
+      //.catch(error => {
+      //if (error.meaasage == "400")
+      //alert("please check the form details..")
+      //else if (error.message == "500")
+      // alert("please try after some time!!")
+      //else
+      //alert(error.meaasage)
+      //});
+
+
+
+      //};
+
+      //execute1();
+
+
+      //}
+    }
+
+  })
+
+
+
+
+</script>
